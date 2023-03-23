@@ -10,6 +10,37 @@ const Header = (props) =>{
     </div>
   )
 }
+const Statistics = (props) => {
+  const a = (props.g-props.b)/(props.t)
+  return(
+    <div>
+      <p>good {props.g}</p>
+      <p>neutral {props.n}</p>
+      <p>bad {props.b}</p>
+      <p>all {props.t}</p>
+      <p>
+        average {a}
+      </p>
+      <p>
+        prositive {props.g/props.t} %
+      </p>
+    </div>
+  )
+}
+const Funcreturn = (props) => {
+  if(props.g>0 || props.n>0 || props.b>0){
+    return Statistics(props)
+  }
+  else{
+    return(
+      <div>
+        <p>
+          No feedback given
+        </p>
+      </div>
+    )
+  }
+}
 
 const App = () => {
   const course = 'give feedback'
@@ -18,33 +49,37 @@ const App = () => {
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
   const [allClicks, setAll] = useState([])
+  const [total, setTotal] = useState(0)
 
   const Handleg = () => {
     setAll(allClicks.concat('G'))
-    setGood(good + 1)
+    const updatedg = good + 1
+    setGood(updatedg)
+    setTotal(updatedg + neutral + bad)
   }
   
   const Handlen = () => {
     setAll(allClicks.concat('N'))
-    setNeutral(neutral + 1)
+    const updatedn = neutral + 1
+    setNeutral(updatedn)
+    setTotal(good + updatedn + bad)
   }
   
   const Handleb = () => {
-    setAll(allClicks.concat('B'))
-    setBad(bad + 1)
+    setAll(allClicks.concat('N'))
+    const updatedb = bad + 1
+    setBad(updatedb)
+    setTotal(good + neutral + updatedb)
   }
-  console.log(allClicks)
   return (
     <div>
       <Header course={course}/>
       <button onClick={Handleg}>good</button>
-      <button onClick={Handlen}>neautral</button>
+      <button onClick={Handlen}>neutral</button>
       <button onClick={Handleb}>bad</button>
       <h1>statistics</h1>
-      <p>good {good}</p>
-      <p>neutral {neutral}</p>
-      <p>bad {bad}</p>
-    </div>
+      <Funcreturn g = {good} n = {neutral} b = {bad} t = {total} ></Funcreturn>
+      </div>
   )
 }
 

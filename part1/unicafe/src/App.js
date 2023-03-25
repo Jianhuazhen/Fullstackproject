@@ -10,37 +10,37 @@ const Header = (props) =>{
     </div>
   )
 }
+const StatisticLine = (props) => {
+  return (
+    <tr>
+      <td>{props.text}</td> <td>{props.value}</td>
+    </tr>
+  )
+}
+
 const Statistics = (props) => {
-  const a = (props.g-props.b)/(props.t)
-  return(
+  const average = (props.good - props.bad) / props.total
+  const positivePercentage = (props.good / props.total) * 100
+
+  if (props.total === 0) {
+    return <p>No feedback given</p>;
+  }
+
+  return (
     <div>
-      <p>good {props.g}</p>
-      <p>neutral {props.n}</p>
-      <p>bad {props.b}</p>
-      <p>all {props.t}</p>
-      <p>
-        average {a}
-      </p>
-      <p>
-        prositive {props.g/props.t} %
-      </p>
+      <StatisticLine text="good" value={props.good} />
+      <StatisticLine text="neutral" value={props.neutral} />
+      <StatisticLine text="bad" value={props.bad} />
+      <StatisticLine text="all" value={props.total} />
+      <StatisticLine text="average" value={average} />
+      <StatisticLine text="positive" value={`${positivePercentage} %`} />
     </div>
   )
 }
-const Funcreturn = (props) => {
-  if(props.g>0 || props.n>0 || props.b>0){
-    return Statistics(props)
-  }
-  else{
-    return(
-      <div>
-        <p>
-          No feedback given
-        </p>
-      </div>
-    )
-  }
-}
+
+const Button = (props)=>(
+  <button onClick={props.handleClick}>{props.text}</button>
+)
 
 const App = () => {
   const course = 'give feedback'
@@ -74,11 +74,13 @@ const App = () => {
   return (
     <div>
       <Header course={course}/>
-      <button onClick={Handleg}>good</button>
-      <button onClick={Handlen}>neutral</button>
-      <button onClick={Handleb}>bad</button>
+      <Button handleClick={() => Handleg()} text="good" />
+      <Button handleClick={() => Handlen()} text="neutral" />
+      <Button handleClick={() => Handleb()} text="bad" />
       <h1>statistics</h1>
-      <Funcreturn g = {good} n = {neutral} b = {bad} t = {total} ></Funcreturn>
+      <table>
+        <Statistics good={good} neutral={neutral} bad={bad} total={total} />
+      </table>
       </div>
   )
 }

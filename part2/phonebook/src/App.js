@@ -1,19 +1,28 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Display from './components/Display'
+import pService from './services/persons'
+
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
+  const [persons, setPersons] = useState([])
   const [filter, setFilter] = useState('')
   const [newName, setNewName] = useState('')
   const [newNum, setNum] = useState('')
 
+  useEffect(() => {
+    pService
+      .getAll()
+      .then(rPerson => {
+        setPersons(rPerson)
+      })
+  }, [])
+
+  
+  const handleDelete = (id) => {
+    setPersons(persons.filter(p => p.id !== id))
+  }
   const handleFilter = (event) =>{
     setFilter(event.target.value)
   }
@@ -25,16 +34,31 @@ const App = () => {
   }
   const addPerson = (event) => {
     event.preventDefault()
-    if(persons.find(arr => arr.name===newName)){
-      alert(`${newName} is already added to phonebook`)
+    const findp = persons.find(arr => arr.name===newName)
+    if(findp){
+      const conf =  window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)
+      if(conf){
+          const updatedPerson = { ...findp, number: newNum };
+          pService.update(findp.id, updatedPerson).then(returnedP => {
+            setPersons(persons.map(person => person.id === returnedP.id ? returnedP : person))
+          })
+          .catch(error => {
+            alert(
+              `the note '${findp.name}' was already deleted from server`
+            )
+          })
+          }
     }
     else{
       const pObject = {
       name: newName,
       number: newNum
     }
-    setPersons(persons.concat(pObject))
-    setNewName('')
+      pService
+          .create(pObject)
+          .then(rPerson => {
+            setPersons(persons.concat(rPerson))
+          })
     }
   }
   
@@ -45,7 +69,7 @@ const App = () => {
       <h3>add a new</h3>
       <PersonForm num = {newNum} name = {newName} add = {addPerson} handlenam = {handleNameChange} handlenum = {handleNumChange}/>
       <h3>Numbers</h3>
-      <Display persons = {persons} filter = {filter}/>
+      <Display persons = {persons} filter = {filter} button = {pService} onDelete={handleDelete}/>
     </div>
   )
 }
